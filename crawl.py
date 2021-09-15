@@ -25,7 +25,13 @@ def define_js_function():
 def click_comment_btn():
     driver.execute_script(open("./js/click_comment_btn.js").read())
     driver.execute_script("window.click_comment_btn()")
-    
+
+def click_more_text():
+    more_text = "q-text qu-cursor--pointer qt_read_more qu-color--blue_dark qu-fontFamily--sans qu-hover--textDecoration--underline"
+    mores = driver.execute_script("return document.getElementsByClassName(\"" + more_text +"\")")
+    for more in mores:
+            try: more.click()
+            except (ElementNotInteractableException, StaleElementReferenceException, Exception): continue
 def click_more_comment(max_iter=None):
     more_comment = "q-click-wrapper qu-active--textDecoration--none qu-focus--textDecoration--none ClickWrapper___StyledClickWrapperBox-zoqi4f-0 bIwtPb base___StyledClickWrapper-lx6eke-1 fURggN   qu-borderRadius--pill qu-alignItems--center qu-justifyContent--center qu-whiteSpace--nowrap qu-userSelect--none qu-display--flex qu-bg--gray_ultralight qu-tapHighlight--white qu-textAlign--center qu-cursor--pointer qu-hover--textDecoration--none"
     load_more = "q-text qu-dynamicFontSize--small qu-borderAll qu-px--small qu-py--tiny qu-mb--tiny qu-borderRadius--small qu-color--gray qu-bg--darken qu-cursor--pointer qu-hover--borderColor--gray_dark qu-truncateLines--1"
@@ -51,6 +57,7 @@ def click_more_comment(max_iter=None):
         print("more : iter :",count_stable)
 
 def extract_answer_div():
+    define_js_function()
     driver.execute_script(open("./js/extract_question.js").read())
     return driver.execute_script("return get_all_answer_div()")
 
@@ -89,9 +96,11 @@ for question in result:
     time.sleep(3)
     click_comment_btn()
     time.sleep(3)
-    click_more_comment(max_iter=5)
+    click_more_comment(max_iter=1)
     # click_comment_btn()
+    click_more_text()
     print(extract_answer_div())
+    print("complete", question["question"])
 
     
 
