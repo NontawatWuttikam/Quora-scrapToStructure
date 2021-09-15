@@ -26,12 +26,14 @@ def click_comment_btn():
     driver.execute_script(open("./js/click_comment_btn.js").read())
     driver.execute_script("window.click_comment_btn()")
 
-def click_more_text():
+def click_more_text(max_iter=1):
     more_text = "q-text qu-cursor--pointer qt_read_more qu-color--blue_dark qu-fontFamily--sans qu-hover--textDecoration--underline"
     mores = driver.execute_script("return document.getElementsByClassName(\"" + more_text +"\")")
-    for more in mores:
-            try: more.click()
-            except (ElementNotInteractableException, StaleElementReferenceException, Exception): continue
+    for i in range(max_iter):
+        for k,more in enumerate(mores):
+                # try: more.click()
+                # except (ElementNotInteractableException, StaleElementReferenceException, Exception): continue
+            driver.execute_script("arguments[0].click();", more)
 def click_more_comment(max_iter=None):
     more_comment = "q-click-wrapper qu-active--textDecoration--none qu-focus--textDecoration--none ClickWrapper___StyledClickWrapperBox-zoqi4f-0 bIwtPb base___StyledClickWrapper-lx6eke-1 fURggN   qu-borderRadius--pill qu-alignItems--center qu-justifyContent--center qu-whiteSpace--nowrap qu-userSelect--none qu-display--flex qu-bg--gray_ultralight qu-tapHighlight--white qu-textAlign--center qu-cursor--pointer qu-hover--textDecoration--none"
     load_more = "q-text qu-dynamicFontSize--small qu-borderAll qu-px--small qu-py--tiny qu-mb--tiny qu-borderRadius--small qu-color--gray qu-bg--darken qu-cursor--pointer qu-hover--borderColor--gray_dark qu-truncateLines--1"
@@ -98,7 +100,7 @@ for question in result:
     time.sleep(3)
     click_more_comment(max_iter=1)
     # click_comment_btn()
-    click_more_text()
+    click_more_text(1)
     print(extract_answer_div())
     print("complete", question["question"])
 
