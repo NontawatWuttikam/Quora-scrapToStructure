@@ -27,18 +27,27 @@ def click_comment_btn():
     driver.execute_script("window.click_comment_btn()")
     
 def click_more_comment(max_iter=None):
+    more_comment = "q-click-wrapper qu-active--textDecoration--none qu-focus--textDecoration--none ClickWrapper___StyledClickWrapperBox-zoqi4f-0 bIwtPb base___StyledClickWrapper-lx6eke-1 fURggN   qu-borderRadius--pill qu-alignItems--center qu-justifyContent--center qu-whiteSpace--nowrap qu-userSelect--none qu-display--flex qu-bg--gray_ultralight qu-tapHighlight--white qu-textAlign--center qu-cursor--pointer qu-hover--textDecoration--none"
+    load_more = "q-text qu-dynamicFontSize--small qu-borderAll qu-px--small qu-py--tiny qu-mb--tiny qu-borderRadius--small qu-color--gray qu-bg--darken qu-cursor--pointer qu-hover--borderColor--gray_dark qu-truncateLines--1"
     max_patient = 2
     count_stable = 0
     old_length = None
+    count = 0
     while (True):
-        clickable_divs = driver.execute_script("return document.getElementsByClassName(\"q-relative qu-pb--small\")")
+        load_more_divs = driver.execute_script("return document.getElementsByClassName(\"" + load_more +"\")")
+        more_comment_divs = driver.execute_script("return document.getElementsByClassName(\"" + more_comment +"\")")
         if old_length is not None:
-            if old_length == len(clickable_divs): count_stable += 1
-        if count_stable == max_patient or count_stable == max_iter: break
-        for divs in clickable_divs:
+            if old_length == len(load_more_divs): count_stable += 1
+        if count_stable == max_patient or count == max_iter: break
+        old_length = len(load_more_divs)
+        for divs in load_more_divs:
             try: divs.click()
-            except (ElementNotInteractableException, StaleElementReferenceException): continue
+            except (ElementNotInteractableException, StaleElementReferenceException, Exception): continue
         time.sleep(3)
+        for divs in more_comment_divs:
+            try: divs.click()
+            except (ElementNotInteractableException, StaleElementReferenceException, Exception): continue
+        count += 1 
         print("more : iter :",count_stable)
 
 def extract_answer_div():
@@ -80,7 +89,7 @@ for question in result:
     time.sleep(3)
     click_comment_btn()
     time.sleep(3)
-    click_more_comment()
+    click_more_comment(max_iter=5)
     # click_comment_btn()
     print(extract_answer_div())
 
