@@ -1,0 +1,37 @@
+{
+    "questions":"When will corona virus end?",
+    "Answers": [
+        {
+            "ans":"I dont know",
+            "comments":[
+                {
+                    "cmt":"You don't know, you don't reply dumbass!",
+                    "reply": [
+                        "What did ya said",
+                        "what a retarded person",
+                        "Don't be toxic here"
+                    ]
+                }
+                {
+                    "cmt":"If You don't know you can pin this thread and come back to read later",
+                    "reply": [
+                        "Thanks"
+                    ]
+                }
+            ]
+        }
+        {
+            "ans":"COVID-19 will be history in less than two years",
+            "comments":[
+                {
+                    "cmt":"Any references?",
+                    "reply": [
+                        "This is my assumption",
+                        "You should give more opinions"
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
