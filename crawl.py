@@ -19,6 +19,42 @@ div_answer_nodelist_index = 7 #Where answer text (qtext) is at in the answer box
 button_comment = "q-click-wrapper ClickWrapper___StyledClickWrapperBox-zoqi4f-0 bIwtPb base___StyledClickWrapper-lx6eke-1 laIUvT   qu-active--bg--darken qu-active--textDecoration--none qu-borderRadius--pill qu-alignItems--center qu-justifyContent--center qu-whiteSpace--nowrap qu-userSelect--none qu-display--inline-flex qu-tapHighlight--white qu-textAlign--center qu-cursor--pointer qu-hover--bg--darken qu-hover--textDecoration--none"
 div_sub_comment_button = "q-relative qu-pb--small"
 
+xpath_comment_section = "//*[@id="mainContent"]/div[2]/div[5]/div/div/div/div/div/div/div/div[2]/div/div/div[2]"
+
+## RECURSE 3 lEVELS TO ACCESS 
+    #Start from "CssComponent-sc-1oskqb9-0 cXjXFI"
+    #Go through 3 nested div we'll see
+        #Parent main comment
+        #div of all sub comment which is wrapper of q-relative qu-pl--medium qu-pt--small qu-pb--small class =>
+        #Click above divs will got "CssComponent-sc-1oskqb9-0 cXjXFI"
+        #goto step 1 again (recurse)
+
+# Data structure
+
+# top level
+# [
+# div 1
+#     cXjXFI
+#         q-box
+#             q-box
+#                 q-box qu-borderTop qu-px--medium qu-pt--medium qu-bg--gray_ultralight 
+#                     q-relative qu-pb--small (Parent text comment)
+#                     q-relative qu-pl--medium qu-pt--small qu-pb--small (Sub cmd tree)
+#                     [
+#                         div 1
+#                             (RECURSE) cXjXFI
+#                         div 2
+#                             (RECURSE) cXjXFI
+#                     ]
+# div 2
+#     cXjXFI
+#     . . .
+# ]
+
+
+div_subcomment_class = "CssComponent-sc-1oskqb9-0 cXjXFI"
+
+
 def define_js_function():
     driver.execute_script(open("./js/util.js").read())
 
