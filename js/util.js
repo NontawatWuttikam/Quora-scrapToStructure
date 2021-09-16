@@ -9,7 +9,7 @@ window.getElementByXPath = (path)=> {
 } 
 
 window.is_answer = (idx) => {
-    txt = document.getElementsByClassName("CssComponent-sc-1oskqb9-0 cXjXFI")[idx].textContent
+    txt = window.getElementByXPath("//*[@id=\"mainContent\"]/div[2]").children[idx].textContent
     if(txt == null) return false
     return !txt.includes("Ad") & !txt.includes("Sponsored") & !txt.includes("AnswersAsked")
 }
