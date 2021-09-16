@@ -11,5 +11,5 @@ window.getElementByXPath = (path)=> {
 window.is_answer = (idx) => {
     txt = document.getElementsByClassName("CssComponent-sc-1oskqb9-0 cXjXFI")[idx].textContent
     if(txt == null) return false
-    return !txt.includes("Ad") & !txt.includes("Sponsored")
+    return !txt.includes("Ad") & !txt.includes("Sponsored") & !txt.includes("AnswersAsked")
 }

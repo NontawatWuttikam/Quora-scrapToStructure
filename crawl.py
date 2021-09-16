@@ -127,6 +127,8 @@ def question_scrapper(keyword,max_iter = None):
 
 def getChildByClass(webEl, className):
     return driver.execute_script("return ")
+def toggle_main_comment():
+    driver.execute_script("document.getElementsByClassName(\"q-click-wrapper ClickWrapper___StyledClickWrapperBox-zoqi4f-0 bIwtPb base___StyledClickWrapper-lx6eke-1 laIUvT   qu-active--bg--darken qu-active--textDecoration--none qu-borderRadius--pill qu-alignItems--center qu-justifyContent--center qu-whiteSpace--nowrap qu-userSelect--none qu-display--inline-flex qu-tapHighlight--white qu-textAlign--center qu-cursor--pointer qu-hover--bg--darken qu-hover--textDecoration--none\")[5].click()")
 
 define_js_function()
 
@@ -141,9 +143,23 @@ for question in result:
     click_more_comment(max_iter=1)
     # click_comment_btn()
     click_more_text(1)
+    toggle_main_comment()
     answer_elements = extract_answer_div()
-    for answer_e in answer_elements:
-        print(answer_e.text)
+    for answer_e,idx in answer_elements:
+        # print(answer_e,idx)
+        
+        main_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx)+"]/div/div/div/div/div/div/div"
+        main_answer_el = driver.find_element_by_xpath(main_xpath)
+        answer_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx)+"]/div/div/div/div/div/div/div/div[1]/div/div/div[1]/div/div[3]"
+        comment_section_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx)+"]/div/div/div/div/div/div/div/div[2]/div/div/div[2]"
+        answer_el = driver.find_element_by_xpath(answer_xpath)
+        comment_section_el = driver.find_element_by_xpath(comment_section_xpath)
+
+        comment_list = comment_section_el.find_elements_by_xpath("./*")
+        print(comment_list)
+
+
+        # //*[@id="mainContent"]/div[2]/div[9]
     break
 
     
