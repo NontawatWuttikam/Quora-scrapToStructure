@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 
 options = webdriver.ChromeOptions() 
 
-options.add_argument('--user-data-dir=C:/Users/Lenovo/AppData/Local/Google/Chrome/User Data')
+options.add_argument('--user-data-dir=C:/Users/PM-COMPUTER/AppData/Local/Google/Chrome/User Data')
 # options.add_argument('--profile-directory=Profile 1')
 
 driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
@@ -19,7 +19,7 @@ div_answer_nodelist_index = 7 #Where answer text (qtext) is at in the answer box
 button_comment = "q-click-wrapper ClickWrapper___StyledClickWrapperBox-zoqi4f-0 bIwtPb base___StyledClickWrapper-lx6eke-1 laIUvT   qu-active--bg--darken qu-active--textDecoration--none qu-borderRadius--pill qu-alignItems--center qu-justifyContent--center qu-whiteSpace--nowrap qu-userSelect--none qu-display--inline-flex qu-tapHighlight--white qu-textAlign--center qu-cursor--pointer qu-hover--bg--darken qu-hover--textDecoration--none"
 div_sub_comment_button = "q-relative qu-pb--small"
 
-xpath_comment_section = "//*[@id="mainContent"]/div[2]/div[5]/div/div/div/div/div/div/div/div[2]/div/div/div[2]"
+xpath_comment_section = "//*[@id=\"mainContent\"]/div[2]/div[5]/div/div/div/div/div/div/div/div[2]/div/div/div[2]"
 
 ## RECURSE 3 lEVELS TO ACCESS 
     #Start from "CssComponent-sc-1oskqb9-0 cXjXFI"
@@ -70,6 +70,7 @@ def click_more_text(max_iter=1):
                 # try: more.click()
                 # except (ElementNotInteractableException, StaleElementReferenceException, Exception): continue
             driver.execute_script("arguments[0].click();", more)
+
 def click_more_comment(max_iter=None):
     more_comment = "q-click-wrapper qu-active--textDecoration--none qu-focus--textDecoration--none ClickWrapper___StyledClickWrapperBox-zoqi4f-0 bIwtPb base___StyledClickWrapper-lx6eke-1 fURggN   qu-borderRadius--pill qu-alignItems--center qu-justifyContent--center qu-whiteSpace--nowrap qu-userSelect--none qu-display--flex qu-bg--gray_ultralight qu-tapHighlight--white qu-textAlign--center qu-cursor--pointer qu-hover--textDecoration--none"
     load_more = "q-text qu-dynamicFontSize--small qu-borderAll qu-px--small qu-py--tiny qu-mb--tiny qu-borderRadius--small qu-color--gray qu-bg--darken qu-cursor--pointer qu-hover--borderColor--gray_dark qu-truncateLines--1"
@@ -124,6 +125,9 @@ def question_scrapper(keyword,max_iter = None):
         result.append({"question":e.text, "url":e.get_attribute('href')})
     return result
 
+def getChildByClass(webEl, className):
+    return driver.execute_script("return ")
+
 define_js_function()
 
 result = question_scrapper("covid",1)
@@ -137,8 +141,10 @@ for question in result:
     click_more_comment(max_iter=1)
     # click_comment_btn()
     click_more_text(1)
-    print(extract_answer_div())
-    print("complete", question["question"])
+    answer_elements = extract_answer_div()
+    for answer_e in answer_elements:
+        print(answer_e.text)
+    break
 
     
 

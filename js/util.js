@@ -9,6 +9,7 @@ window.getElementByXPath = (path)=> {
 } 
 
 window.is_answer = (idx) => {
-    xp = xpath_unique_answer.replace("<NUM>",idx.toString())
-    return getElementByXPath(xp) != null
+    txt = document.getElementsByClassName("CssComponent-sc-1oskqb9-0 cXjXFI")[idx].textContent
+    if(txt == null) return false
+    return !txt.includes("Ad") & !txt.includes("Sponsored")
 }
