@@ -150,26 +150,33 @@ def build_tree(element):
 #arg : the list div element of each section of comment
 # Class CssComponent-sc-1oskqb9-0 cXjXFI
 def get_qbox(main_el): #extract only current text {no child text}
+    sub_comment = None
     lev_3 = main_el.find_element_by_xpath("./*")
     print(lev_3.get_attribute("class"))
     lev_3 = lev_3.find_element_by_xpath("./*")
     print(lev_3.get_attribute("class"))
     lev_3 = lev_3.find_element_by_xpath("./*")
-    print(lev_3.get_attribute("class"))
-    lev_3 = lev_3.find_element_by_xpath("./*")
-    print(lev_3.get_attribute("class"))
-    lev_3 = lev_3.find_element_by_xpath("./*")
-    print(lev_3.get_attribute("class"))
-    lev_3 = lev_3.find_element_by_xpath("./*")
-    print(lev_3.get_attribute("class"))
-    lev_3 = lev_3.find_element_by_xpath("./*")
-    print(lev_3.get_attribute("class"))
-    lev_3 = lev_3.find_element_by_xpath("./*")
-    print(lev_3.get_attribute("class"))
-    lev_3 = lev_3.find_elements_by_class_name("qu-flex--auto")[0]
-    lev_3 = lev_3.find_elements_by_class_name("q-box")[9].text
+        #there are 2 elements
+            #q-relative => main text
+            #q-relative qu-pl--medium qu-pt--small qu-pb--small => other
+    lev_3 = lev_3.find_elements_by_xpath("./*")
+    if len(lev_3) == 2: #If subcomment section is exist
+        sub_comment = lev_3[1].find_elements_by_xpath("./*")[0].find_elements_by_xpath("./*")[0]
 
-    return lev_3
+    print(lev_3[0].get_attribute("class"))
+    lev_3 = lev_3[0].find_element_by_xpath("./*")
+    print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_element_by_xpath("./*")
+    print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_element_by_xpath("./*")
+    print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_element_by_xpath("./*")
+    print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_elements_by_xpath("./*")[1] #0 is profile image
+    print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_elements_by_xpath("./*")[1].text
+
+    return lev_3,sub_comment
 
     
 
