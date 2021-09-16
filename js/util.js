@@ -11,5 +11,5 @@ window.getElementByXPath = (path)=> {
 window.is_answer = (idx) => {
     txt = window.getElementByXPath("//*[@id=\"mainContent\"]/div[2]").children[idx].textContent
     if(txt == null) return false
-    return !txt.includes("Ad") & !txt.includes("Sponsored") & !txt.includes("AnswersAsked")
+    return !txt.includes("Ad by") & !txt.includes("Sponsored") & !txt.includes("AnswersAsked") & !txt.includes("Related Questions")
 }

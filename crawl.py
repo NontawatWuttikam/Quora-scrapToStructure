@@ -134,6 +134,47 @@ define_js_function()
 
 result = question_scrapper("covid",1)
 
+class Node():
+    def __init__(self, text):
+        self.text = text
+        self.sub_comment = []
+    def append_child(self,node):
+        self.sub_comment.append(node)
+
+#Extract from q-text
+
+def build_tree(element):
+    element
+    node = Node()
+
+#arg : the list div element of each section of comment
+# Class CssComponent-sc-1oskqb9-0 cXjXFI
+def get_qbox(main_el): #extract only current text {no child text}
+    lev_3 = main_el.find_element_by_xpath("./*")
+    print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_element_by_xpath("./*")
+    print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_element_by_xpath("./*")
+    print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_element_by_xpath("./*")
+    print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_element_by_xpath("./*")
+    print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_element_by_xpath("./*")
+    print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_element_by_xpath("./*")
+    print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_element_by_xpath("./*")
+    print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_elements_by_class_name("qu-flex--auto")[0]
+    lev_3 = lev_3.find_elements_by_class_name("q-box")[9].text
+
+    return lev_3
+
+    
+
+
+
 for question in result:
     driver.get(question["url"])
     scroll(1)
@@ -148,15 +189,17 @@ for question in result:
     for answer_e,idx in answer_elements:
         # print(answer_e,idx)
         
-        main_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx)+"]/div/div/div/div/div/div/div"
+        main_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div"
         main_answer_el = driver.find_element_by_xpath(main_xpath)
-        answer_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx)+"]/div/div/div/div/div/div/div/div[1]/div/div/div[1]/div/div[3]"
-        comment_section_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx)+"]/div/div/div/div/div/div/div/div[2]/div/div/div[2]"
+        answer_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div/div[1]"
+        comment_section_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div/div[2]/div/div/div[2]"
         answer_el = driver.find_element_by_xpath(answer_xpath)
         comment_section_el = driver.find_element_by_xpath(comment_section_xpath)
 
         comment_list = comment_section_el.find_elements_by_xpath("./*")
-        print(comment_list)
+        for c in comment_list:
+            if c.text == "View more comments": continue
+            print(get_qbox(c))
 
 
         # //*[@id="mainContent"]/div[2]/div[9]
