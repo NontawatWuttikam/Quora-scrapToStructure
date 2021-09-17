@@ -143,7 +143,7 @@ class Node():
 
 #Extract from q-text
 
-def build_tree(element,level):
+def build_tree(element,level,verbose=False):
     is_sub_comment = True
     if level == 0: is_sub_comment = False
     text,sub_comments = get_qbox(element,is_sub_comment)
@@ -151,18 +151,23 @@ def build_tree(element,level):
     if len(sub_comments) != 0:
         temp = []
         for sc in sub_comments:
-            temp.append(build_tree(sc,level+1))
+            if "Add Comment" in sc.text: continue
+            temp.append(build_tree(sc,level+1,verbose))
         node.sub_comment = temp
     return node
 
 #arg : the list div element of each section of comment
 # Class CssComponent-sc-1oskqb9-0 cXjXFI
-def get_qbox(main_el,is_sub_comment = False): #extract only current text {no child text}
+def get_qbox(main_el,is_sub_comment = False,verbose = False): #extract only current text {no child text}
     sub_comment = []
-    print(main_el.get_attribute("class"))
-    for i in range(3):
-        lev_3 = main_el.find_element_by_xpath("./*")
-        print(lev_3.get_attribute("class"))
+
+    if verbose : print(main_el.get_attribute("class"))
+    lev_3 = main_el.find_element_by_xpath("./*")
+    if verbose : print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_element_by_xpath("./*")
+    if verbose : print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_element_by_xpath("./*")
+    if verbose : print(lev_3.get_attribute("class"))
         #there are 2 elements
             #q-relative => main text
             #q-relative qu-pl--medium qu-pt--small qu-pb--small => other
@@ -175,19 +180,23 @@ def get_qbox(main_el,is_sub_comment = False): #extract only current text {no chi
                 temp.append(i)
         sub_comment = temp
 
-    print(lev_3[0].get_attribute("class"))
-    for i in range(3):
-        lev_3 = lev_3[0].find_element_by_xpath("./*")
-        print(lev_3.get_attribute("class"))
+    if verbose : print(lev_3[0].get_attribute("class"))
+    lev_3 = lev_3[0].find_element_by_xpath("./*")
+    if verbose : print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_element_by_xpath("./*")
+    if verbose : print(lev_3.get_attribute("class"))
+    lev_3 = lev_3.find_element_by_xpath("./*")
+    if verbose : print(lev_3.get_attribute("class"))
     if not is_sub_comment:
         lev_3 = lev_3.find_element_by_xpath("./*")
-        print(lev_3.get_attribute("class"))
+        if verbose : print(lev_3.get_attribute("class"))
     lev_3 = lev_3.find_elements_by_xpath("./*")[1] #0 is profile image
-    print(lev_3.get_attribute("class"))
+    if verbose : print(lev_3.get_attribute("class"))
     if not is_sub_comment:
         lev_3 = lev_3.find_elements_by_xpath("./*")[1].text
     else:
         lev_3 = lev_3.text
+    if verbose : print("reference : ",lev_3)
     return lev_3,sub_comment
 
 for question in result:
@@ -206,20 +215,25 @@ for question in result:
         # print(answer_e,idx)
         
         main_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div"
-        main_answer_el = driver.find_element_by_xpath(main_xpath)
+        try:
+            main_answer_el = driver.find_element_by_xpath(main_xpath)
+        except Exception:
+            print("SKIPPED : ", answer_e.text[:20])
+            continue
         answer_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div/div[1]"
         comment_section_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div/div[2]/div/div/div[2]"
         answer_el = driver.find_element_by_xpath(answer_xpath)
         comment_section_el = driver.find_element_by_xpath(comment_section_xpath)
-
+        
         comment_list = comment_section_el.find_elements_by_xpath("./*")
         comment_trees = []
         for c in comment_list:
             if c.text == "View more comments": continue
-            comment_trees.append(build_tree(c,level=0))
+            comment_trees.append(build_tree(c,level=0,verbose=False))
         comment_forest.append(comment_trees)
 
-    print("successs")
+        print(idx,answer_e.text[:20],"success!")
+    print("success")
         # //*[@id="mainContent"]/div[2]/div[9]
     break
 
