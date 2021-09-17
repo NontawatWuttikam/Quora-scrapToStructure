@@ -1,6 +1,7 @@
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 import time
+import numpy as np
 from selenium.common.exceptions import ElementNotInteractableException, StaleElementReferenceException
 from selenium.webdriver.common.by import By
 
@@ -143,7 +144,9 @@ class Node():
 
 #Extract from q-text
 
+#Recursively build tree from q_box extractor
 def build_tree(element,level,verbose=False):
+    if "Add Comment" in element.text: return None
     is_sub_comment = True
     if level == 0: is_sub_comment = False
     text,sub_comments = get_qbox(element,is_sub_comment)
@@ -151,8 +154,8 @@ def build_tree(element,level,verbose=False):
     if len(sub_comments) != 0:
         temp = []
         for sc in sub_comments:
-            if "Add Comment" in sc.text: continue
-            temp.append(build_tree(sc,level+1,verbose))
+            struct = build_tree(sc,level+1,verbose)
+            if struct is not None : temp.append(struct)
         node.sub_comment = temp
     return node
 
@@ -205,7 +208,7 @@ for question in result:
     time.sleep(3)
     click_comment_btn()
     time.sleep(3)
-    click_more_comment(max_iter=1)
+    click_more_comment(max_iter=5)
     # click_comment_btn()
     click_more_text(1)
     toggle_main_comment()
@@ -219,12 +222,17 @@ for question in result:
             main_answer_el = driver.find_element_by_xpath(main_xpath)
         except Exception:
             print("SKIPPED : ", answer_e.text[:20])
+            comment_forest.append([])
             continue
         answer_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div/div[1]"
         comment_section_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div/div[2]/div/div/div[2]"
         answer_el = driver.find_element_by_xpath(answer_xpath)
-        comment_section_el = driver.find_element_by_xpath(comment_section_xpath)
-        
+        try:
+            comment_section_el = driver.find_element_by_xpath(comment_section_xpath)
+        except Exception:
+            print("SKIPPED : ", answer_e.text[:20])
+            comment_forest.append([])
+            continue
         comment_list = comment_section_el.find_elements_by_xpath("./*")
         comment_trees = []
         for c in comment_list:
@@ -234,6 +242,7 @@ for question in result:
 
         print(idx,answer_e.text[:20],"success!")
     print("success")
+    np.save("tree_struct_1_question_5_iterations.npy",comment_forest)
         # //*[@id="mainContent"]/div[2]/div[9]
     break
 
