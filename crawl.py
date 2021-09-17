@@ -143,7 +143,7 @@ class Node():
 
 #Recursively build tree from q_box extractor
 def build_tree(element,level,verbose=False):
-    if "Add Comment" in element.text: return None
+    if "Add Comment" in element.text or "Comment deleted" in element.text: return None
     is_sub_comment = True
     if level == 0: is_sub_comment = False
     text,sub_comments = get_qbox(element,is_sub_comment)
@@ -200,11 +200,21 @@ def get_qbox(main_el,is_sub_comment = False,verbose = False): #extract only curr
     if verbose : print("reference : ",lev_3)
     return lev_3,sub_comment
 
+def get_answer_from_element(el):
+    lev_3 = el.find_element_by_xpath("./*")
+    for i in range(3):
+        lev_3 = lev_3.find_element_by_xpath("./*")
+    e = lev_3.find_elements_by_xpath("./*")
+    idx = len(e) - 1
+    while e[idx].get_attribute("class") != 'q-text':
+        idx -= 1 #If current div index is not question text then reduce the index until found
+    txt = e[idx].text 
+    return txt
 
 #Pipeline
 
 keyword = "covid"
-more_comment_iteration = 1
+more_comment_iteration = 8
 
 define_js_function()
 
@@ -243,7 +253,7 @@ for k,question in enumerate(result):
             print("SKIPPED : ", answer_e.text[:20])
             comment_forest.append(None)
             continue
-        answer_text = answer_el.find_elements_by_class_name("q-text")[7].text
+        answer_text = get_answer_from_element(answer_el)
         comment_list = comment_section_el.find_elements_by_xpath("./*")
         comment_trees = []
         for c in comment_list:
@@ -258,8 +268,9 @@ for k,question in enumerate(result):
     
     root_question = Node(question["question"])
     root_question.sub_comment = comment_forest
-    np.save("tree_struct_1_question_5_iterations.npy",comment_forest)
-    print("saved at",)
+    file_name = "question_NO_"+str(k+1)+"_total_"+str(more_comment_iteration)+"_iterations.npy"
+    np.save(file_name,root_question)
+    print("saved at",file_name)
         # //*[@id="mainContent"]/div[2]/div[9]
     
 
