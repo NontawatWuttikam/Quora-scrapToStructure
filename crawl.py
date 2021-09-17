@@ -135,7 +135,7 @@ define_js_function()
 result = question_scrapper("covid",1)
 
 class Node():
-    def __init__(self, text):
+    def __init__(self, text,sub_comment=[]):
         self.text = text
         self.sub_comment = []
     def append_child(self,node):
@@ -143,44 +143,52 @@ class Node():
 
 #Extract from q-text
 
-def build_tree(element):
-    element
-    node = Node()
+def build_tree(element,level):
+    is_sub_comment = True
+    if level == 0: is_sub_comment = False
+    text,sub_comments = get_qbox(element,is_sub_comment)
+    node = Node(text)
+    if len(sub_comments) != 0:
+        temp = []
+        for sc in sub_comments:
+            temp.append(build_tree(sc,level+1))
+        node.sub_comment = temp
+    return node
 
 #arg : the list div element of each section of comment
 # Class CssComponent-sc-1oskqb9-0 cXjXFI
-def get_qbox(main_el): #extract only current text {no child text}
-    sub_comment = None
-    lev_3 = main_el.find_element_by_xpath("./*")
-    print(lev_3.get_attribute("class"))
-    lev_3 = lev_3.find_element_by_xpath("./*")
-    print(lev_3.get_attribute("class"))
-    lev_3 = lev_3.find_element_by_xpath("./*")
+def get_qbox(main_el,is_sub_comment = False): #extract only current text {no child text}
+    sub_comment = []
+    print(main_el.get_attribute("class"))
+    for i in range(3):
+        lev_3 = main_el.find_element_by_xpath("./*")
+        print(lev_3.get_attribute("class"))
         #there are 2 elements
             #q-relative => main text
             #q-relative qu-pl--medium qu-pt--small qu-pb--small => other
     lev_3 = lev_3.find_elements_by_xpath("./*")
     if len(lev_3) == 2: #If subcomment section is exist
-        sub_comment = lev_3[1].find_elements_by_xpath("./*")[0].find_elements_by_xpath("./*")[0]
+        sub_comment = lev_3[1].find_elements_by_xpath("./*")[0].find_elements_by_xpath("./*")
+        temp = []
+        for k,i in enumerate(sub_comment):
+            if "cXjXFI" in i.get_attribute("class"):
+                temp.append(i)
+        sub_comment = temp
 
     print(lev_3[0].get_attribute("class"))
-    lev_3 = lev_3[0].find_element_by_xpath("./*")
-    print(lev_3.get_attribute("class"))
-    lev_3 = lev_3.find_element_by_xpath("./*")
-    print(lev_3.get_attribute("class"))
-    lev_3 = lev_3.find_element_by_xpath("./*")
-    print(lev_3.get_attribute("class"))
-    lev_3 = lev_3.find_element_by_xpath("./*")
-    print(lev_3.get_attribute("class"))
+    for i in range(3):
+        lev_3 = lev_3[0].find_element_by_xpath("./*")
+        print(lev_3.get_attribute("class"))
+    if not is_sub_comment:
+        lev_3 = lev_3.find_element_by_xpath("./*")
+        print(lev_3.get_attribute("class"))
     lev_3 = lev_3.find_elements_by_xpath("./*")[1] #0 is profile image
     print(lev_3.get_attribute("class"))
-    lev_3 = lev_3.find_elements_by_xpath("./*")[1].text
-
+    if not is_sub_comment:
+        lev_3 = lev_3.find_elements_by_xpath("./*")[1].text
+    else:
+        lev_3 = lev_3.text
     return lev_3,sub_comment
-
-    
-
-
 
 for question in result:
     driver.get(question["url"])
@@ -193,6 +201,7 @@ for question in result:
     click_more_text(1)
     toggle_main_comment()
     answer_elements = extract_answer_div()
+    comment_forest = []
     for answer_e,idx in answer_elements:
         # print(answer_e,idx)
         
@@ -204,11 +213,13 @@ for question in result:
         comment_section_el = driver.find_element_by_xpath(comment_section_xpath)
 
         comment_list = comment_section_el.find_elements_by_xpath("./*")
+        comment_trees = []
         for c in comment_list:
             if c.text == "View more comments": continue
-            print(get_qbox(c))
+            comment_trees.append(build_tree(c,level=0))
+        comment_forest.append(comment_trees)
 
-
+    print("successs")
         # //*[@id="mainContent"]/div[2]/div[9]
     break
 
