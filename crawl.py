@@ -128,12 +128,9 @@ def question_scrapper(keyword,max_iter = None):
 
 def getChildByClass(webEl, className):
     return driver.execute_script("return ")
+
 def toggle_main_comment():
     driver.execute_script("document.getElementsByClassName(\"q-click-wrapper ClickWrapper___StyledClickWrapperBox-zoqi4f-0 bIwtPb base___StyledClickWrapper-lx6eke-1 laIUvT   qu-active--bg--darken qu-active--textDecoration--none qu-borderRadius--pill qu-alignItems--center qu-justifyContent--center qu-whiteSpace--nowrap qu-userSelect--none qu-display--inline-flex qu-tapHighlight--white qu-textAlign--center qu-cursor--pointer qu-hover--bg--darken qu-hover--textDecoration--none\")[5].click()")
-
-define_js_function()
-
-result = question_scrapper("covid",1)
 
 class Node():
     def __init__(self, text,sub_comment=[]):
@@ -155,7 +152,8 @@ def build_tree(element,level,verbose=False):
         temp = []
         for sc in sub_comments:
             struct = build_tree(sc,level+1,verbose)
-            if struct is not None : temp.append(struct)
+            if struct is not None :
+                temp.append(struct)
         node.sub_comment = temp
     return node
 
@@ -202,27 +200,39 @@ def get_qbox(main_el,is_sub_comment = False,verbose = False): #extract only curr
     if verbose : print("reference : ",lev_3)
     return lev_3,sub_comment
 
-for question in result:
+
+#Pipeline
+
+keyword = "covid"
+more_comment_iteration = 1
+
+define_js_function()
+
+print("Scrapping question using keyword \""+keyword+"\"....")
+result = question_scrapper(keyword,1)
+print("Scrapping question SUCCESS : total "+str(len(result))+" questions\n")
+
+for k,question in enumerate(result):
+    print("Question "+str(k+1)+" : "+question["question"])
     driver.get(question["url"])
     scroll(1)
     time.sleep(3)
     click_comment_btn()
     time.sleep(3)
-    click_more_comment(max_iter=5)
+    click_more_comment(max_iter=more_comment_iteration)
     # click_comment_btn()
     click_more_text(1)
     toggle_main_comment()
     answer_elements = extract_answer_div()
     comment_forest = []
+    print("Extracting answer and comment chain...")
     for answer_e,idx in answer_elements:
-        # print(answer_e,idx)
-        
         main_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div"
         try:
             main_answer_el = driver.find_element_by_xpath(main_xpath)
         except Exception:
             print("SKIPPED : ", answer_e.text[:20])
-            comment_forest.append([])
+            comment_forest.append(None)
             continue
         answer_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div/div[1]"
         comment_section_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div/div[2]/div/div/div[2]"
@@ -231,21 +241,26 @@ for question in result:
             comment_section_el = driver.find_element_by_xpath(comment_section_xpath)
         except Exception:
             print("SKIPPED : ", answer_e.text[:20])
-            comment_forest.append([])
+            comment_forest.append(None)
             continue
+        answer_text = answer_el.find_elements_by_class_name("q-text")[7].text
         comment_list = comment_section_el.find_elements_by_xpath("./*")
         comment_trees = []
         for c in comment_list:
-            if c.text == "View more comments": continue
+            if c.text == "View more comments" or c.text == "Add Comment": continue
             comment_trees.append(build_tree(c,level=0,verbose=False))
-        comment_forest.append(comment_trees)
+        root_note_of_answer = Node(answer_text)
+        root_note_of_answer.sub_comment = comment_trees
+        comment_forest.append(root_note_of_answer)
 
-        print(idx,answer_e.text[:20],"success!")
-    print("success")
+        print(idx,answer_e.text[:20],"....")
+    print("\nExtract Answer and comment chains from question ",k+1,"SUCCESS!")
+    
+    root_question = Node(question["question"])
+    root_question.sub_comment = comment_forest
     np.save("tree_struct_1_question_5_iterations.npy",comment_forest)
+    print("saved at",)
         # //*[@id="mainContent"]/div[2]/div[9]
-    break
-
     
 
 print(result)
