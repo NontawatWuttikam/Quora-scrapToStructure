@@ -5,7 +5,7 @@ class Node():
         self.sub_comment = []
     def append_child(self,node):
         self.sub_comment.append(node)
-root = np.load("D:\Quora-scrapToStructure\question_NO_1_total_15_iterations.npy",allow_pickle=True)
+root = np.load("D:\Quora-scrapToStructure\data\scroll_25_15_iteration\question_NO_13_total_15_iterations.npy",allow_pickle=True)
 root = root.tolist()
 txt = ""
 def traverse(ele,level):
