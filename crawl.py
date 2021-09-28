@@ -10,8 +10,10 @@ options = webdriver.ChromeOptions()
 
 options.add_argument('--user-data-dir=C:/Users/PM-COMPUTER/AppData/Local/Google/Chrome/User Data')
 # options.add_argument('--profile-directory=Profile 1')
+options.add_argument("--headless")
 
 driver = webdriver.Chrome(ChromeDriverManager().install(),options=options)
+
 
 question_class_name = "q-box qu-display--block qu-cursor--pointer qu-hover--textDecoration--underline Link___StyledBox-t2xg9c-0 roKEj"
 div_answer_amount = "q-text qu-dynamicFontSize--regular qu-medium qu-color--gray_dark qu-passColorToLinks"
@@ -219,21 +221,24 @@ def get_answer_from_element(el):
 
 keyword = "covid"
 more_comment_iteration = 15
-max_scrap = 30
+max_scrap = 100
+scroll_iteration = 25
+
 scrapped_question = []
 if os.path.exists("scrapped_question.npy"):
     scrapped_question = np.load("scrapped_question.npy",allow_pickle=True).tolist()
 define_js_function()
 
 print("Scrapping question using keyword \""+keyword+"\"....")
-result = question_scrapper(keyword,2)
+result = question_scrapper(keyword,10)
 print("Scrapping question SUCCESS : total "+str(len(result))+" questions\n")
 
 for k,question in enumerate(result):
     if question["question"].strip() not in scrapped_question:
         print("Question "+str(k+1)+" : "+question["question"])
         driver.get(question["url"])
-        scroll(1)
+        scroll(scroll_iteration)
+        print("scroll success...")
         time.sleep(3)
         click_comment_btn()
         time.sleep(3)
@@ -243,6 +248,7 @@ for k,question in enumerate(result):
         toggle_main_comment()
         answer_elements = extract_answer_div()
         comment_forest = []
+        print("total answer element : ",len(answer_elements))
         print("Extracting answer and comment chain...")
         for answer_e,idx in answer_elements:
             main_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div"
