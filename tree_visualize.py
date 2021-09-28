@@ -5,13 +5,13 @@ class Node():
         self.sub_comment = []
     def append_child(self,node):
         self.sub_comment.append(node)
-root = np.load("D:\Quora-scrapToStructure\question_NO_1_total_8_iterations.npy",allow_pickle=True)
+root = np.load("D:\Quora-scrapToStructure\question_NO_28_total_15_iterations.npy",allow_pickle=True)
 root = root.tolist()
 txt = ""
 def traverse(ele,level):
     global txt
     if ele is None: return
-    txt += "        "*level + ele.text[:40].replace("\n","")+"...\n"
+    txt += "        "*level + ele.text[:80].replace("\n","")+"...\n"
     for e in ele.sub_comment:
         traverse(e,level+1)
 

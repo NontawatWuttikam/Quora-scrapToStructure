@@ -2,6 +2,7 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import numpy as np
+import os
 from selenium.common.exceptions import ElementNotInteractableException, StaleElementReferenceException
 from selenium.webdriver.common.by import By
 
@@ -94,7 +95,7 @@ def click_more_comment(max_iter=None):
             try: divs.click()
             except (ElementNotInteractableException, StaleElementReferenceException, Exception): continue
         count += 1 
-        print("more : iter :",count_stable)
+        print("more comment : iter :", count)
 
 def extract_answer_div():
     define_js_function()
@@ -206,72 +207,82 @@ def get_answer_from_element(el):
         lev_3 = lev_3.find_element_by_xpath("./*")
     e = lev_3.find_elements_by_xpath("./*")
     idx = len(e) - 1
-    while e[idx].get_attribute("class") != 'q-text':
+    while e[idx].get_attribute("class") != 'q-text' and 'q-box spacing_log_answer_content' not in e[idx].get_attribute("class"):
+        # print(e[idx].get_attribute("class"))
         idx -= 1 #If current div index is not question text then reduce the index until found
+        if idx < 0:
+            raise ValueError("Extracting answer failed, please check the web layout")
     txt = e[idx].text 
     return txt
 
 #Pipeline
 
 keyword = "covid"
-more_comment_iteration = 8
-
+more_comment_iteration = 15
+max_scrap = 30
+scrapped_question = []
+if os.path.exists("scrapped_question.npy"):
+    scrapped_question = np.load("scrapped_question.npy",allow_pickle=True).tolist()
 define_js_function()
 
 print("Scrapping question using keyword \""+keyword+"\"....")
-result = question_scrapper(keyword,1)
+result = question_scrapper(keyword,2)
 print("Scrapping question SUCCESS : total "+str(len(result))+" questions\n")
 
 for k,question in enumerate(result):
-    print("Question "+str(k+1)+" : "+question["question"])
-    driver.get(question["url"])
-    scroll(1)
-    time.sleep(3)
-    click_comment_btn()
-    time.sleep(3)
-    click_more_comment(max_iter=more_comment_iteration)
-    # click_comment_btn()
-    click_more_text(1)
-    toggle_main_comment()
-    answer_elements = extract_answer_div()
-    comment_forest = []
-    print("Extracting answer and comment chain...")
-    for answer_e,idx in answer_elements:
-        main_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div"
-        try:
-            main_answer_el = driver.find_element_by_xpath(main_xpath)
-        except Exception:
-            print("SKIPPED : ", answer_e.text[:20])
-            comment_forest.append(None)
-            continue
-        answer_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div/div[1]"
-        comment_section_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div/div[2]/div/div/div[2]"
-        answer_el = driver.find_element_by_xpath(answer_xpath)
-        try:
-            comment_section_el = driver.find_element_by_xpath(comment_section_xpath)
-        except Exception:
-            print("SKIPPED : ", answer_e.text[:20])
-            comment_forest.append(None)
-            continue
-        answer_text = get_answer_from_element(answer_el)
-        comment_list = comment_section_el.find_elements_by_xpath("./*")
-        comment_trees = []
-        for c in comment_list:
-            if c.text == "View more comments" or c.text == "Add Comment": continue
-            comment_trees.append(build_tree(c,level=0,verbose=False))
-        root_note_of_answer = Node(answer_text)
-        root_note_of_answer.sub_comment = comment_trees
-        comment_forest.append(root_note_of_answer)
+    if question["question"].strip() not in scrapped_question:
+        print("Question "+str(k+1)+" : "+question["question"])
+        driver.get(question["url"])
+        scroll(1)
+        time.sleep(3)
+        click_comment_btn()
+        time.sleep(3)
+        click_more_comment(max_iter=more_comment_iteration)
+        # click_comment_btn()
+        click_more_text(1)
+        toggle_main_comment()
+        answer_elements = extract_answer_div()
+        comment_forest = []
+        print("Extracting answer and comment chain...")
+        for answer_e,idx in answer_elements:
+            main_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div"
+            try:
+                main_answer_el = driver.find_element_by_xpath(main_xpath)
+            except Exception:
+                print("SKIPPED : ", answer_e.text[:20])
+                comment_forest.append(None)
+                continue
+            answer_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div/div[1]"
+            comment_section_xpath = "//*[@id=\"mainContent\"]/div[2]/div["+str(idx+1)+"]/div/div/div/div/div/div/div/div[2]/div/div/div[2]"
+            answer_el = driver.find_element_by_xpath(answer_xpath)
+            try:
+                comment_section_el = driver.find_element_by_xpath(comment_section_xpath)
+            except Exception:
+                print("SKIPPED : ", answer_e.text[:20])
+                comment_forest.append(None)
+                continue
+            answer_text = get_answer_from_element(answer_el)
+            comment_list = comment_section_el.find_elements_by_xpath("./*")
+            comment_trees = []
+            for c in comment_list:
+                if c.text == "View more comments" or c.text == "Add Comment": continue
+                comment_trees.append(build_tree(c,level=0,verbose=False))
+            root_note_of_answer = Node(answer_text)
+            root_note_of_answer.sub_comment = comment_trees
+            comment_forest.append(root_note_of_answer)
 
-        print(idx,answer_e.text[:20],"....")
-    print("\nExtract Answer and comment chains from question ",k+1,"SUCCESS!")
+            print(idx,answer_e.text[:20],"....")
+        print("\nExtract Answer and comment chains from question ",k+1,"SUCCESS!")
+        
+        root_question = Node(question["question"])
+        root_question.sub_comment = comment_forest
+        file_name = "question_NO_"+str(k+1)+"_total_"+str(more_comment_iteration)+"_iterations.npy"
+        np.save(file_name,root_question)
+        print("saved at",file_name)
+            # //*[@id="mainContent"]/div[2]/div[9]
+        scrapped_question.append(question["question"].strip())
+        np.save("scrapped_question.npy",scrapped_question)
+        if k+1 == max_scrap:
+            break
     
-    root_question = Node(question["question"])
-    root_question.sub_comment = comment_forest
-    file_name = "question_NO_"+str(k+1)+"_total_"+str(more_comment_iteration)+"_iterations.npy"
-    np.save(file_name,root_question)
-    print("saved at",file_name)
-        # //*[@id="mainContent"]/div[2]/div[9]
-    
-
-print(result)
+print("SUCCESS")
